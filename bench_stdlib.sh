@@ -28,4 +28,4 @@ timeout -s KILL 1h \
   --included_blocks stdlib
 
 temci report run_output.yaml --reporter codespeed2 \
-  | python "$BENCH/convert_results.py"
+  | python "$BENCH/convert_results.py" > "$OUT"
