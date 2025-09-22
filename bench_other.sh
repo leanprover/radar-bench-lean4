@@ -25,7 +25,7 @@ timeout -s KILL 1h \
   time temci exec \
   --config "$BENCH/speedcenter.yaml" \
   --in "$BENCH/speedcenter.exec.velcom.yaml" \
-  --included_blocks stdlib
+  --included_blocks other
 
 temci report run_output.yaml --reporter codespeed2 \
   | python "$BENCH/convert_results.py" > "$OUT"
