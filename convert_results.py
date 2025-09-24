@@ -40,6 +40,10 @@ for benchmark, metrics in data.items():
         unit: str | None = measurements.get("unit")
         unit = unit if unit else None  # "" -> None
 
+        if unit == "KB":
+            value *= 1024
+            unit = "B"
+
         direction_str: str = measurements.get("resultInterpretation", "")
         direction = DIRECTIONS.get(direction_str, 0)
 
