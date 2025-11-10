@@ -14,11 +14,6 @@ export PATH=$PWD/build/release/stage2/bin:$PATH
 
 cd tests/bench
 
-# Patch temci config on older commits
-if cmp -s speedcenter.exec.velcom.yaml "$BENCH/speedcenter.exec.velcom.yaml.old"; then
-  cp "$BENCH/speedcenter.exec.velcom.yaml.new" speedcenter.exec.velcom.yaml
-fi
-
 timeout -s KILL 1h \
   time temci exec \
   --config speedcenter.yaml \
