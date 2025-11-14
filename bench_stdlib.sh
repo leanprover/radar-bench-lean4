@@ -9,14 +9,14 @@ cd "$REPO"
 
 if [ -d "tests/bench-radar" ]; then
   echo Using the bench-radar suite
-  tests/bench-radar/run
-elif [ -d "tests/bench" ] && [ -f "tests/bench/run" ]; then
+  tests/bench-radar/run_stdlib
+elif [ -d "tests/bench" ] && [ -f "tests/bench/run_stdlib" ]; then
   echo Using the bench suite
-  tests/bench/run
+  tests/bench/run_stdlib
 else
   echo Bringing my own copy of the bench-radar suite
   cp -r "$BENCH/bench-radar" tests/bench-radar
-  tests/bench-radar/run
+  tests/bench-radar/run_stdlib
 fi
 
 mv radar.jsonl "$OUT"

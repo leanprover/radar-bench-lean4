@@ -3,3 +3,6 @@ set -euo pipefail
 
 echo "Running benchmark: stdlib"
 tests/bench-radar/stdlib/run
+
+echo "Running benchmark: size"
+tests/bench-radar/size/run
