@@ -23,11 +23,17 @@ def save_result(metric: str, value: float, unit: str | None = None) -> None:
 
 
 def run(*command: str) -> None:
-    subprocess.run(command, check=True)
+    result = subprocess.run(command)
+    if result.returncode != 0:
+        sys.exit(result.returncode)
 
 
 def run_stderr(*command: str) -> str:
-    result = subprocess.run(command, check=True, capture_output=True, encoding="utf-8")
+    result = subprocess.run(command, capture_output=True, encoding="utf-8")
+    if result.returncode != 0:
+        print(result.stdout, end="", file=sys.stdout)
+        print(result.stderr, end="", file=sys.stderr)
+        sys.exit(result.returncode)
     return result.stderr
 
 
