@@ -17,8 +17,11 @@ cp "$BENCH/stdlib/lean_wrapper.py" "$STAGE2/bin/lean"
 # Build stage3
 "$BENCH/measure.py" -t stdlib \
   -m instructions -m maxrss -m task-clock -m wall-clock -- \
-  lakeprof record make -C build/release -j"$(nproc)" stage3
+  lakeprof record -- \
+  make -C build/release -j"$(nproc)" stage3
 
 # Analyze lakeprof data
+mv lakeprof.log src
+cd src
 lakeprof report -pj | jq -r '"radar::measurement=\({metric: "stdlib/lakeprof/longest build path//wall-clock", value: .[-1][2], unit: "s"})"'
 lakeprof report -rj | jq -r '"radar::measurement=\({metric: "stdlib/lakeprof/longest rebuild path//wall-clock", value: .[-1][2], unit: "s"})"'
