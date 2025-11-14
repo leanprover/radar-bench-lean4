@@ -25,18 +25,23 @@ class RusageMetric:
     unit: str | None = None
 
 
+PERF_UNITS = {
+    "msec": 1e-3,
+    "ns": 1e-9,
+}
+
 PERF_METRICS = {
-    "task-clock": PerfMetric("task-clock", 1e-9, "s"),
-    "wall-clock": PerfMetric("duration_time", 1e-9, "s"),
+    "task-clock": PerfMetric("task-clock", factor=1e-9, unit="s"),
+    "wall-clock": PerfMetric("duration_time", factor=1e-9, unit="s"),
     "instructions": PerfMetric("instructions"),
 }
 
 RUSAGE_METRICS = {
-    "maxrss": RusageMetric("ru_maxrss", 1000, "b"),  # KiB on linux
+    "maxrss": RusageMetric("ru_maxrss", factor=1000, unit="b"),  # KiB on linux
 }
 
 
-def measure_perf(cmd: list[str], events: list[str]) -> dict[str, float]:
+def measure_perf(cmd: list[str], events: list[str]) -> dict[str, tuple[float, str]]:
     with tempfile.NamedTemporaryFile() as tmp:
         cmd = [
             *["perf", "stat", "-j", "-o", tmp.name],
@@ -56,7 +61,7 @@ def measure_perf(cmd: list[str], events: list[str]) -> dict[str, float]:
         for line in tmp:
             data = json.loads(line)
             if "event" in data and "counter-value" in data:
-                perf[data["event"]] = float(data["counter-value"])
+                perf[data["event"]] = float(data["counter-value"]), data["unit"]
 
         return perf
 
@@ -97,12 +102,14 @@ def measure(cmd: list[str], metrics: list[str]) -> list[Result]:
     results = []
     for metric in metrics:
         if info := PERF_METRICS.get(metric):
-            value = perf.get(info.event)
-            if value is None:
+            if info.event in perf:
+                value, unit = perf[info.event]
+            else:
                 # Without the corresponding permissions,
                 # we only get access to the userspace versions of the counters.
-                value = perf[f"{info.event}:u"]
-            value *= info.factor
+                value, unit = perf[f"{info.event}:u"]
+
+            value *= PERF_UNITS.get(unit, info.factor)
             results.append(Result(metric, value, info.unit))
 
         if info := RUSAGE_METRICS.get(metric):
