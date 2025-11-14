@@ -10,6 +10,12 @@ cmake --preset release
 timeout -s KILL 1h time make -C build/release -j"$(nproc)" stage3
 find "$STAGE3" -name "*.olean" -delete
 
+# Use stage2 binaries from now on
+#
+# Otherwise, tools like lakeprof use the global lean installation,
+# which may not exist or be the right version.
+export PATH="$PWD/$STAGE2/bin:$PATH"
+
 # Substitute our own wrapper script
 mv "$STAGE2/bin/lean" "$STAGE2/bin/lean.wrapped"
 cp "$BENCH/stdlib/lean_wrapper.py" "$STAGE2/bin/lean"
@@ -17,8 +23,11 @@ cp "$BENCH/stdlib/lean_wrapper.py" "$STAGE2/bin/lean"
 # Build stage3
 "$BENCH/measure.py" -t stdlib \
   -m instructions -m maxrss -m task-clock -m wall-clock -- \
-  lakeprof record make -C build/release -j"$(nproc)" stage3
+  lakeprof record -- \
+  make -C build/release -j"$(nproc)" stage3
 
 # Analyze lakeprof data
+mv lakeprof.log src
+cd src
 lakeprof report -pj | jq -r '"radar::measurement=\({metric: "stdlib/lakeprof/longest build path//wall-clock", value: .[-1][2], unit: "s"})"'
 lakeprof report -rj | jq -r '"radar::measurement=\({metric: "stdlib/lakeprof/longest rebuild path//wall-clock", value: .[-1][2], unit: "s"})"'
