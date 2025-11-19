@@ -28,6 +28,13 @@ cp "$BENCH/stdlib/lean_wrapper.py" "$STAGE2/bin/lean"
 
 # Analyze lakeprof data
 mv lakeprof.log src
-cd src
+pushd src
 lakeprof report -pj | jq -r '"radar::measurement=\({metric: "stdlib/lakeprof/longest build path//wall-clock", value: .[-1][2], unit: "s"})"'
 lakeprof report -rj | jq -r '"radar::measurement=\({metric: "stdlib/lakeprof/longest rebuild path//wall-clock", value: .[-1][2], unit: "s"})"'
+popd
+
+# Upload lakeprof report
+# Guarded to prevent accidental uploads (which wouldn't work anyways) during local runs.
+if [ -f stdlib_upload_lakeprof_report ]; then
+  python3 "$BENCH/stdlib/lakeprof_report_upload.py"
+fi
