@@ -6,6 +6,7 @@ REPO="$1" # absolute path to the repo to be benchmarked
 OUT="$2" # absolute path to the output jsonl file
 
 cd "$REPO"
+touch stdlib_upload_lakeprof_report
 
 if [ -d "tests/bench-radar" ]; then
   echo Using the bench-radar suite
