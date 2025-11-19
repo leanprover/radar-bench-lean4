@@ -3,6 +3,10 @@
 This benchmark measures the number and size of a few kinds of files.
 It expects to be executed after the `stdlib` benchmark.
 
+The following general metrics are collected:
+
+- `size/libleanshared.so//bytes`
+
 The following metrics are collected for the entirety of stdlib:
 
 - `size/stdlib/.c//files`

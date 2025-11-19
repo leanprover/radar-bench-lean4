@@ -2,7 +2,7 @@
 
 import json
 from pathlib import Path
-from typing import Iterator
+from typing import Iterable
 
 SRC = Path("src")
 STAGE3 = Path("build/release/stage3")
@@ -17,17 +17,18 @@ def print_result(metric: str, value: float, unit: str | None = None) -> None:
     print(f"radar::measurement={json.dumps(data)}")
 
 
-def measure_bytes(topic: str, paths: Iterator[Path]) -> None:
+def measure_bytes(topic: str, paths: Iterable[Path], files: bool = True) -> None:
     amount = 0
     total = 0
     for path in paths:
         amount += 1
         total += path.stat().st_size
-    print_result(f"{topic}//files", amount)
+    if files:
+        print_result(f"{topic}//files", amount)
     print_result(f"{topic}//bytes", total, "B")
 
 
-def measure_lines(topic: str, paths: Iterator[Path]) -> None:
+def measure_lines(topic: str, paths: Iterable[Path]) -> None:
     amount = 0
     total = 0
     for path in paths:
@@ -39,6 +40,12 @@ def measure_lines(topic: str, paths: Iterator[Path]) -> None:
 
 
 if __name__ == "__main__":
+    measure_bytes(
+        "size/libleanshared.so",
+        [STAGE3_LEAN / "libleanshared.so"],
+        files=False,
+    )
+
     # Stdlib
     measure_lines("size/stdlib/.c", STAGE3_TEMP.glob("**/*.c"))
     measure_bytes("size/stdlib/.ir", STAGE3_LEAN.glob("**/*.ir"))

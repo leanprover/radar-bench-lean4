@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+# Wrap around a command with perf and rusage to measure some metrics. Output the
+# results either on stdout or to a file, according to the radar bench script
+# specification.
+
 import argparse
 import json
 import os

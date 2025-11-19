@@ -18,3 +18,8 @@ It can emit the measurement in one of two ways:
    This file follows the [JSON Lines](https://jsonlines.org/) format.
 2. Print a line on stdout or stderr containing `radar::measurement=` followed by the measurement.
    After the measurement, only whitespace is allowed.
+
+All scripts related to the new benchmark suite are contained in this directory.
+The files at `tests/bench` belong to the old suite.
+The `*.py` symlinks are only for convenience when editing the python scripts in VSCode,
+so the python extensions (in particular pyrefly) treat it as a python file.

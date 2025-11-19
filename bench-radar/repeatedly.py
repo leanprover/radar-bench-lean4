@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+# Repeatedly run a command that outputs radar measurements on stdout or stderr.
+# Average the results and re-emit them.
+
 import argparse
 import json
 import subprocess
