@@ -21,4 +21,11 @@ else
 fi
 
 # Pass on measurements to radar
-mv radar.jsonl "$OUT"
+if [ -f measurements.jsonl ]; then
+  mv measurements.jsonl "$OUT"
+elif [ -f radar.jsonl ]; then
+  mv radar.jsonl "$OUT"
+else
+  echo "Could not find benchmark results."
+  exit 2
+fi
