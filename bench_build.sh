@@ -8,16 +8,17 @@ OUT="$2" # absolute path to the output jsonl file
 cd "$REPO"
 touch build_upload_lakeprof_report
 
-if [ -d "tests/bench-radar" ]; then
-  echo Using the bench-radar suite
+# Execute benchmark suite
+if [ -f tests/bench-radar/run_build ]; then
+  echo "Using the bench-radar suite."
   tests/bench-radar/run_build
-elif [ -d "tests/bench" ] && [ -f "tests/bench/run_build" ]; then
-  echo Using the bench suite
+elif [ -f tests/bench/run_build ]; then
+  echo "Using the bench suite."
   tests/bench/run_build
 else
-  echo Bringing my own copy of the bench-radar suite
-  cp -r "$BENCH/bench-radar" tests/bench-radar
-  tests/bench-radar/run_build
+  echo "Could not find benchmark suite."
+  exit 1
 fi
 
+# Pass on measurements to radar
 mv radar.jsonl "$OUT"
