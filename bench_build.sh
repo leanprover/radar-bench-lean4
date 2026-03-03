@@ -5,12 +5,20 @@ BENCH="$PWD"
 REPO="$1" # absolute path to the repo to be benchmarked
 OUT="$2" # absolute path to the output jsonl file
 
+# Limit memory (all values are in KiB)
+mem_total="$(awk '/MemTotal/ { print $2 }' /proc/meminfo)"
+mem_limit="$((mem_total * 90 / 100))"
+ulimit -v "$mem_limit"
+
 cd "$REPO"
 cmake --preset release
 
 if make -C build/release help 2>/dev/null | grep -q bench-part1; then
   echo "Using the new bench suite."
-  make -C build/release -j"$(nproc)" bench-part1
+
+  timeout -s KILL 30m \
+    make -C build/release -j"$(nproc)" bench-part1
+
   mv tests/part1.measurements.jsonl "$OUT"
   "$BENCH/rename_metrics.py" "$OUT"
 
@@ -29,9 +37,13 @@ if [[ -f tests/bench-radar/run_build ]]; then
   rm -rf build
 
   touch build_upload_lakeprof_report
-  tests/bench-radar/run_build
+
+  timeout -s KILL 1h \
+    tests/bench-radar/run_build
+
   mv measurements.jsonl "$OUT"
   "$BENCH/rename_metrics.py" "$OUT"
+
   exit
 fi
 
