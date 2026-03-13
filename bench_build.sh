@@ -23,7 +23,11 @@ if make -C build/release help 2>/dev/null | grep -q bench-part1; then
   "$BENCH/rename_metrics.py" "$OUT"
 
   pushd tests/bench/build
-  ./run_upload_lakeprof_report
+  if [[ -f run_upload_lakeprof_report ]]; then
+    ./run_upload_lakeprof_report
+  else
+    ./lakeprof_report_upload.py
+  fi
   popd
 
   exit
