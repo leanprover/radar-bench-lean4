@@ -11,7 +11,7 @@ mem_limit="$((mem_total * 90 / 100))"
 ulimit -v "$mem_limit"
 
 cd "$REPO"
-cmake --preset release
+cmake --preset release -DWFAIL=OFF
 
 if make -C build/release help 2>/dev/null | grep -q bench-part1; then
   echo "Using the new bench suite."
