@@ -1,16 +1,12 @@
 #!/usr/bin/env bash
 set -eux
 
-BENCH="$PWD"
-REPO="$1" # absolute path to the repo to be benchmarked
-OUT="$2" # absolute path to the output jsonl file
-
 # Limit memory (all values are in KiB)
 mem_total="$(awk '/MemTotal/ { print $2 }' /proc/meminfo)"
 mem_limit="$((mem_total * 90 / 100))"
 ulimit -v "$mem_limit"
 
-cd "$REPO"
+cd "$RADAR_REPO"
 cmake --preset release -DWFAIL=OFF
 
 if make -C build/release help 2>/dev/null | grep -q bench-part1; then
@@ -19,8 +15,8 @@ if make -C build/release help 2>/dev/null | grep -q bench-part1; then
   timeout -s KILL 30m \
     make -C build/release -j"$(nproc)" bench-part1
 
-  mv tests/part1.measurements.jsonl "$OUT"
-  "$BENCH/rename_metrics.py" "$OUT"
+  mv tests/part1.measurements.jsonl "$RADAR_OUT"
+  "$RADAR_BENCH_REPO/rename_metrics.py" "$RADAR_OUT"
 
   pushd tests/bench/build
   if [[ -f run_upload_lakeprof_report ]]; then
