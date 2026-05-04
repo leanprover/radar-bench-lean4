@@ -33,23 +33,5 @@ if make -C build/release help 2>/dev/null | grep -q bench-part1; then
   exit
 fi
 
-if [[ -f tests/bench-radar/run_build ]]; then
-  echo "Using the bench-radar suite."
-
-  # `cmake` doesn't like to be called more than once before `make` is called.
-  # https://github.com/leanprover/lean4/pull/12598
-  rm -rf build
-
-  touch build_upload_lakeprof_report
-
-  timeout -s KILL 1h \
-    tests/bench-radar/run_build
-
-  mv measurements.jsonl "$OUT"
-  "$BENCH/rename_metrics.py" "$OUT"
-
-  exit
-fi
-
 echo "Could not find benchmark suite."
 exit 1
