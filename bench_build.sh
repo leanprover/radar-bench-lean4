@@ -15,26 +15,5 @@ if [[ -f tests/bench_build.sh ]]; then
   exit
 fi
 
-cmake --preset release -DWFAIL=OFF
-if make -C build/release help 2>/dev/null | grep -q bench-part1; then
-  echo "Using the new bench suite."
-
-  timeout -s KILL 30m \
-    make -C build/release -j"$(nproc)" bench-part1
-
-  mv tests/part1.measurements.jsonl "$RADAR_OUT"
-  "$RADAR_BENCH_REPO/rename_metrics.py" "$RADAR_OUT"
-
-  pushd tests/bench/build
-  if [[ -f run_upload_lakeprof_report ]]; then
-    ./run_upload_lakeprof_report
-  else
-    ./lakeprof_report_upload.py
-  fi
-  popd
-
-  exit
-fi
-
 echo "Could not find benchmark suite."
 exit 1
