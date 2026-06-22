@@ -1,5 +1,6 @@
 import argparse
 import json
+import urllib.request
 from pathlib import Path
 from typing import TypedDict
 
@@ -24,13 +25,16 @@ def prompt(message: str, options: str = "Yn") -> str:
             print(f"Please enter {options_display}.")
 
 
-parser = argparse.ArgumentParser()
-parser.add_argument("first", type=Path, help="first measurements file")
-parser.add_argument("second", type=Path, help="second measurements file")
-args = parser.parse_args()
+class Args:
+    first: str
+    second: str
 
-first: Path = args.first
-second: Path = args.second
+
+parser = argparse.ArgumentParser()
+parser.add_argument("first", help="first commit sha")
+parser.add_argument("second", help="second commit sha")
+args = parser.parse_args(namespace=Args())
+
 
 renamings_file: Path = Path(__file__).parent / "renamings.json"
 renamings: dict[str, str | None] = json.loads(renamings_file.read_text())
@@ -61,16 +65,17 @@ class Measurement(TypedDict):
     second: float | None
 
 
-def load_measurements(file: Path) -> list[Measurement]:
-    measurements: list[Measurement] = []
-    with file.open() as f:
-        for line in f:
-            measurements.append(json.loads(line))
-    return measurements
+def fetch_measurements(first: str, second: str) -> list[Measurement]:
+    url = f"https://radar.lean-lang.org/api/compare/lean4/{first}/{second}/"
+    with urllib.request.urlopen(url) as response:
+        data = json.load(response)
+    return data["comparison"]["measurements"]
 
 
-metrics_first = {rename(m["metric"]) for m in load_measurements(first)}
-metrics_second = {rename(m["metric"]) for m in load_measurements(second)}
+measurements = fetch_measurements(args.first, args.second)
+
+metrics_first = {rename(m["metric"]) for m in measurements if m["first"] is not None}
+metrics_second = {rename(m["metric"]) for m in measurements if m["second"] is not None}
 
 only_in_first = metrics_first - metrics_second - ignorings
 topics: dict[str, str] = {}
