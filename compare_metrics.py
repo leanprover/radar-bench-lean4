@@ -49,7 +49,7 @@ def save_renamings():
 
 def save_ignorings():
     ignorings_file.write_text(
-        json.dumps(list(sorted(ignorings)), indent=2, sort_keys=True) + "\n"
+        json.dumps(sorted(ignorings), indent=2, sort_keys=True) + "\n"
     )
 
 
